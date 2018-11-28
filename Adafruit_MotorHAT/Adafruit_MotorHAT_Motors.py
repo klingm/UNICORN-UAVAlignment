@@ -48,14 +48,14 @@ class Adafruit_StepperMotor:
         # Program the AIN1/2 and BIN1/2 PWM profiles to perform stepping in either forward or reverse
         ON = 0
         OFF = 1
-        AIN2_PWM_F = [0, 1638]
-        BIN1_PWM_F = [819, 2457]
-        AIN1_PWM_F = [1638, 3276]
-        BIN2_PWM_F = [2457, 4095]
-        BIN2_PWM_B = [0, 1638]
-        AIN1_PWM_B = [819, 2457]
-        BIN1_PWM_B = [1638, 3276]
-        AIN2_PWM_B = [2457, 4095]
+        AIN2_PWM_F = [0, 2047]
+        BIN1_PWM_F = [1023, 3071]
+        AIN1_PWM_F = [2047, 4095]
+        BIN2_PWM_F = [3071, 1023]
+        BIN2_PWM_B = [0, 2047]
+        AIN1_PWM_B = [1023, 3071]
+        BIN1_PWM_B = [2047, 4095]
+        AIN2_PWM_B = [3071, 1023]
         self.MC._pwm.setPWM(self.PWMA, 0, pwm_a)
         self.MC._pwm.setPWM(self.PWMB, 0, pwm_b)
 

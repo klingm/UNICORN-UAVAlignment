@@ -8,7 +8,7 @@ import sys
 import threading
 
 # create object for each PWM motor control hat 
-PWM_FREQUENCY = 60 
+PWM_FREQUENCY = 40
 hats = [Adafruit_MotorHAT(addr = 0x60, freq = PWM_FREQUENCY), Adafruit_MotorHAT(addr = 0x61, freq = PWM_FREQUENCY)] 
 
 # auto-disable motors on program exit
