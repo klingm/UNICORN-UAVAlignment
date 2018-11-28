@@ -7,7 +7,12 @@ import time
 
 
 logger = logging.getLogger(__name__)
-
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 def get_i2c_device(address, i2c, i2c_bus):
     # Helper method to get a device at the specified address from the I2C bus.
@@ -74,6 +79,9 @@ class PWM(object):
         logger.debug("Setting PWM frequency to %d Hz" % freq)
         logger.debug("Estimated pre-scale: %d" % prescaleval)
         prescale = math.floor(prescaleval + 0.5)
+        if(prescale > 255):
+            prescale = 255
+            logger.debug("Clipping prescale to max: %d" % prescale);
         logger.debug("Final pre-scale: %d" % prescale)
         oldmode = self.i2c.readU8(self.__MODE1);
         newmode = (oldmode & 0x7F) | 0x10             # sleep

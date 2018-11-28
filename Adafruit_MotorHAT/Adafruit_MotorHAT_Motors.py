@@ -42,6 +42,43 @@ class Adafruit_StepperMotor:
         self.sec_per_step = 60.0 / (self.revsteps * rpm)
         self.steppingcounter = 0
 
+    def startAutoRun(self, dir):
+        pwm_a = pwm_b = 4095
+        # Auto run only supports double stepping
+        # Program the AIN1/2 and BIN1/2 PWM profiles to perform stepping in either forward or reverse
+        ON = 0
+        OFF = 1
+        AIN2_PWM_F = [0, 1638]
+        BIN1_PWM_F = [819, 2457]
+        AIN1_PWM_F = [1638, 3276]
+        BIN2_PWM_F = [2457, 4095]
+        BIN2_PWM_B = [0, 1638]
+        AIN1_PWM_B = [819, 2457]
+        BIN1_PWM_B = [1638, 3276]
+        AIN2_PWM_B = [2457, 4095]
+        self.MC._pwm.setPWM(self.PWMA, 0, pwm_a)
+        self.MC._pwm.setPWM(self.PWMB, 0, pwm_b)
+
+        if (dir == Adafruit_MotorHAT.FORWARD):
+            print("Starting stepper autorun: dir = FORWARD")
+            self.MC._pwm.setPWM(self.AIN1, AIN1_PWM_F[ON], AIN1_PWM_F[OFF])
+            self.MC._pwm.setPWM(self.AIN2, AIN2_PWM_F[ON], AIN2_PWM_F[OFF])
+            self.MC._pwm.setPWM(self.BIN1, BIN1_PWM_F[ON], BIN1_PWM_F[OFF])
+            self.MC._pwm.setPWM(self.BIN2, BIN2_PWM_F[ON], BIN2_PWM_F[OFF])
+        else:
+            print("Starting stepper autorun: dir = BACKWARD")
+            self.MC._pwm.setPWM(self.AIN1, AIN1_PWM_B[OFF], AIN1_PWM_B[ON])
+            self.MC._pwm.setPWM(self.AIN2, AIN2_PWM_B[OFF], AIN2_PWM_B[ON])
+            self.MC._pwm.setPWM(self.BIN1, BIN1_PWM_B[OFF], BIN1_PWM_B[ON])
+            self.MC._pwm.setPWM(self.BIN2, BIN2_PWM_B[OFF], BIN2_PWM_B[ON])
+
+    def stopAutoRun(self):
+        self.MC.setPin(self.AIN2, 0)
+        self.MC.setPin(self.BIN1, 0)
+        self.MC.setPin(self.AIN1, 0)
+        self.MC.setPin(self.BIN2, 0)
+
+
     def oneStep(self, dir, style):
         pwm_a = pwm_b = 255
 
@@ -134,7 +171,7 @@ class Adafruit_StepperMotor:
                 [1, 0, 0, 1] ]
             coils = step2coils[self.currentstep//(self.MICROSTEPS//2)]
 
-        #print "coils state = " + str(coils)
+        #print "coils state = " + str(coils) + " currentstep = " + str(self.currentstep) + " style = " + str(style)
         self.MC.setPin(self.AIN2, coils[0])
         self.MC.setPin(self.BIN1, coils[1])
         self.MC.setPin(self.AIN1, coils[2])
@@ -152,7 +189,7 @@ class Adafruit_StepperMotor:
             s_per_s /= self.MICROSTEPS
             steps *= self.MICROSTEPS
 
-        print("{} sec per step".format(s_per_s))
+        #print("{} sec per step".format(s_per_s))
 
         for s in range(steps):
             lateststep = self.oneStep(direction, stepstyle)
@@ -211,7 +248,6 @@ class Adafruit_DCMotor:
         if (speed > 255):
             speed = 255
         self.MC._pwm.setPWM(self.PWMpin, 0, speed*16)
-
 
 class Adafruit_MotorHAT:
     FORWARD = 1
