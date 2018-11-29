@@ -42,8 +42,13 @@ class Adafruit_StepperMotor:
         self.sec_per_step = 60.0 / (self.revsteps * rpm)
         self.steppingcounter = 0
 
-    def startAutoRun(self, dir):
+    def startAutoRun(self, dir, freq = 0):
         pwm_a = pwm_b = 4095
+
+        # set specified freq (or skip if no freq specified)
+        if(freq > 0):
+            self.MC._pwm.setPWMFreq(freq)
+
         # Auto run only supports double stepping
         # Program the AIN1/2 and BIN1/2 PWM profiles to perform stepping in either forward or reverse
         ON = 0

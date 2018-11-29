@@ -8,8 +8,10 @@ import sys
 import threading
 
 # create object for each PWM motor control hat 
-PWM_FREQUENCY = 40
-hats = [Adafruit_MotorHAT(addr = 0x60, freq = PWM_FREQUENCY), Adafruit_MotorHAT(addr = 0x61, freq = PWM_FREQUENCY)] 
+DEFAULT_PWM_FREQUENCY = 30
+FAST_FREQ = 0
+hats = [Adafruit_MotorHAT(addr = 0x60, freq = DEFAULT_PWM_FREQUENCY), 
+        Adafruit_MotorHAT(addr = 0x61, freq = DEFAULT_PWM_FREQUENCY)] 
 
 # auto-disable motors on program exit
 def turnOffMotors():
@@ -63,11 +65,11 @@ def runStepper(stepper, numSteps, direction, style, limitSwitch, debugPin):
     stepperOn = False
     while True:
         if numSteps <= 0 and stepperOn == False:
-            stepper.startAutoRun(direction)
+            stepper.startAutoRun(direction, FAST_FREQ)
             stepperOn = True
-        elif numSteps > 0:
+        elif numSteps > 0 and stepperOn == False:
             stepper.step(numSteps, direction, style)
-        else:
+        elif stepperOn == True:
             time.sleep(0.1)
 
         if direction == Adafruit_MotorHAT.FORWARD and limitSwitch[0].is_pressed:
@@ -75,7 +77,10 @@ def runStepper(stepper, numSteps, direction, style, limitSwitch, debugPin):
             direction = Adafruit_MotorHAT.BACKWARD
             stepper.stopAutoRun()
             time.sleep(1)
-            stepper.startAutoRun(direction)
+            # go backwards fast
+            stepper.startAutoRun(direction, FAST_FREQ)
+            stepperOn = True
+            time.sleep(1)
             continue
         elif direction == Adafruit_MotorHAT.BACKWARD and limitSwitch[1].is_pressed:
             print("Limit reached, stopping...")
@@ -101,29 +106,33 @@ def spawnStepperThread(myStepper, speed, numSteps, direction, style, limitSwitch
     t.start()
     return t
 
-# check for valid cmd 'a', 'h', 'r', or 'e' and then execute motor control 
+# check for valid cmd 'a1', 'a2', 'h', 'r', or 'e' and then execute motor control 
 # based on that cmd.  The function takes an array of 2 for the remaining args.
 # In order to control stacked motor, this function must be called with 
 # different sets of args for each.  Threads to control all motors will then be
 # spawned.
 STEPS_PER_REV = 200
 SPEED = 60
-STEPS = -1
+STEPS = 10
 def runMotors(cmd, mh, motors, limitSwitch, t, debugPin):
     steppers = [mh.getStepper(STEPS_PER_REV, motors[0]), mh.getStepper(STEPS_PER_REV, motors[1])]
-    if cmd == "a":
+    if cmd == "a1" or cmd == "a2":
+        steps = STEPS
+        if cmd == "a1":
+            steps = -1
+
         # spawn thread to run motor, STEPS_PER_REV steps/rev, motor port #, speed=SPEED, 
         # single step, forward direction, double coil
         if t[0] == None and t[1] == None:
             for i in range(len(steppers)):
-                t[i] = spawnStepperThread(steppers[i], SPEED, STEPS, 
+                t[i] = spawnStepperThread(steppers[i], SPEED, steps, 
                     Adafruit_MotorHAT.FORWARD, Adafruit_MotorHAT.DOUBLE, limitSwitch, debugPin)
         else:
             if t[0].is_alive() or t[1].is_alive():
                 print("Command in progress")
             else:
                 for i in range(len(steppers)):
-                    t[i] = spawnStepperThread(steppers[i], SPEED, STEPS, 
+                    t[i] = spawnStepperThread(steppers[i], SPEED, steps, 
                         Adafruit_MotorHAT.FORWARD, Adafruit_MotorHAT.DOUBLE, limitSwitch, debugPin)
 
     elif cmd == "h":
@@ -139,17 +148,17 @@ def runMotors(cmd, mh, motors, limitSwitch, t, debugPin):
         # single step, reverse direction, double coil
         if t[0] == None and t[1] == None:
             for i in range(len(steppers)):
-                t[i] = spawnStepperThread(steppers[i], SPEED, STEPS, 
+                t[i] = spawnStepperThread(steppers[i], SPEED, -1, 
                     Adafruit_MotorHAT.BACKWARD, Adafruit_MotorHAT.DOUBLE, limitSwitch, debugPin)
         else:
             if t[0].is_alive() == True or t[1].is_alive() == True:
                 print("Command in progress")
             else:
                 for i in range(len(steppers)):
-                    t[i] = spawnStepperThread(steppers[i], SPEED, STEPS, 
+                    t[i] = spawnStepperThread(steppers[i], SPEED, -1, 
                         Adafruit_MotorHAT.BACKWARD, Adafruit_MotorHAT.DOUBLE, limitSwitch, debugPin)
     else:
-        print("Invalid command!")
+        print("Invalid command!" + cmd)
                 
     return t
 

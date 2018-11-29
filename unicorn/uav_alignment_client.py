@@ -7,7 +7,7 @@ import time
 import socket
 import sys
 
-HOST = '192.168.137.254'    # The remote host
+HOST = '192.168.1.3'    # The remote host
 PORT = 50000              # The same port as used by the server
 s = None
 for res in socket.getaddrinfo(HOST, PORT, socket.AF_UNSPEC, socket.SOCK_STREAM):
@@ -29,9 +29,9 @@ if s is None:
     sys.exit(1)
 
 while True:
-	cmd = input("Command: (a)lign, (h)alt, (r)eset, (e)xit >> ")
-	if cmd == "a" or cmd == "h" or cmd == "r":
-		s.sendall(str.encode(cmd[:1]));
+	cmd = input("Command: (a)lign[1/2 - fast/slow], (h)alt, (r)eset, (e)xit >> ")
+	if cmd == "a1" or cmd == "a2" or cmd == "h" or cmd == "r":
+		s.sendall(str.encode(cmd[:len(cmd)]));
 	elif cmd == "e":
 		break
 	else:
