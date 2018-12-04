@@ -8,7 +8,7 @@ import sys
 import threading
 
 # create object for each PWM motor control hat 
-DEFAULT_PWM_FREQUENCY = 30
+DEFAULT_PWM_FREQUENCY = 60
 FAST_FREQ = 0
 hats = [Adafruit_MotorHAT(addr = 0x60, freq = DEFAULT_PWM_FREQUENCY), 
         Adafruit_MotorHAT(addr = 0x61, freq = DEFAULT_PWM_FREQUENCY)] 
