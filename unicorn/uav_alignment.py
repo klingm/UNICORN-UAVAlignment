@@ -70,7 +70,7 @@ def runStepper(stepper, numSteps, direction, style, limitSwitch, debugPin):
         elif numSteps > 0 and stepperOn == False:
             stepper.step(numSteps, direction, style)
         elif stepperOn == True:
-            time.sleep(0.1)
+            time.sleep(0.01)
 
         if direction == Adafruit_MotorHAT.FORWARD and limitSwitch[0].is_pressed:
             print("Limit reached, reversing...")
@@ -126,14 +126,14 @@ def runMotors(cmd, mh, motors, limitSwitch, t, debugPin):
         if t[0] == None and t[1] == None:
             for i in range(len(steppers)):
                 t[i] = spawnStepperThread(steppers[i], SPEED, steps, 
-                    Adafruit_MotorHAT.FORWARD, Adafruit_MotorHAT.DOUBLE, limitSwitch, debugPin)
+                    Adafruit_MotorHAT.FORWARD, Adafruit_MotorHAT.MICROSTEP, limitSwitch, debugPin)
         else:
             if t[0].is_alive() or t[1].is_alive():
                 print("Command in progress")
             else:
                 for i in range(len(steppers)):
                     t[i] = spawnStepperThread(steppers[i], SPEED, steps, 
-                        Adafruit_MotorHAT.FORWARD, Adafruit_MotorHAT.DOUBLE, limitSwitch, debugPin)
+                        Adafruit_MotorHAT.FORWARD, Adafruit_MotorHAT.MICROSTEP, limitSwitch, debugPin)
 
     elif cmd == "h":
         if t[0] != None and t[1] != None:
@@ -149,14 +149,14 @@ def runMotors(cmd, mh, motors, limitSwitch, t, debugPin):
         if t[0] == None and t[1] == None:
             for i in range(len(steppers)):
                 t[i] = spawnStepperThread(steppers[i], SPEED, -1, 
-                    Adafruit_MotorHAT.BACKWARD, Adafruit_MotorHAT.DOUBLE, limitSwitch, debugPin)
+                    Adafruit_MotorHAT.BACKWARD, Adafruit_MotorHAT.MICROSTEP, limitSwitch, debugPin)
         else:
             if t[0].is_alive() == True or t[1].is_alive() == True:
                 print("Command in progress")
             else:
                 for i in range(len(steppers)):
                     t[i] = spawnStepperThread(steppers[i], SPEED, -1, 
-                        Adafruit_MotorHAT.BACKWARD, Adafruit_MotorHAT.DOUBLE, limitSwitch, debugPin)
+                        Adafruit_MotorHAT.BACKWARD, Adafruit_MotorHAT.MICROSTEP, limitSwitch, debugPin)
     else:
         print("Invalid command!" + cmd)
                 
