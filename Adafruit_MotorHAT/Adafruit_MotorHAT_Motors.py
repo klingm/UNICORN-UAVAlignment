@@ -84,6 +84,18 @@ class Adafruit_StepperMotor:
         self.MC.setPin(self.BIN2, 0)
 
 
+    def hold(self):
+        # make sure motors are stopped, then turn on PWMA and PWMB and set the 
+        # coils to a fixed state.  This will put current through the motors and
+        # hold them in place.
+        self.stopAutoRun()
+        self.MC._pwm.setPWM(self.PWMA, 0, 4095)
+        self.MC._pwm.setPWM(self.PWMB, 0, 4095)
+        self.MC.setPin(self.AIN2, 1)
+        self.MC.setPin(self.BIN1, 1)
+        self.MC.setPin(self.AIN1, 0)
+        self.MC.setPin(self.BIN2, 0)
+
     def oneStep(self, dir, style):
         pwm_a = pwm_b = 255
 

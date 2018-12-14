@@ -73,22 +73,22 @@ def runStepper(stepper, numSteps, direction, style, limitSwitch, debugPin):
             time.sleep(0.01)
 
         if direction == Adafruit_MotorHAT.FORWARD and limitSwitch[0].is_pressed:
-            print("Limit reached, reversing...")
-            direction = Adafruit_MotorHAT.BACKWARD
+            # stop the motors and then hold them in place
+            print("Alignment position reached, holding...")
             stepper.stopAutoRun()
-            time.sleep(1)
-            # go backwards fast
-            stepper.startAutoRun(direction, FAST_FREQ)
-            stepperOn = True
-            time.sleep(1)
-            continue
+
+            # command the motors to hold 
+            stepper.hold()
+            break
         elif direction == Adafruit_MotorHAT.BACKWARD and limitSwitch[1].is_pressed:
-            print("Limit reached, stopping...")
+            print("Stow position reached, stopping...")
             stepper.stopAutoRun()
+            stepper.hold()
             break
         if runStepper.halt == True:
             print("Halting...")
             stepper.stopAutoRun()
+            stepper.hold()
             break
     #end while
     
