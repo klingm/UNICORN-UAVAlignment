@@ -11,7 +11,9 @@ import threading
 DEFAULT_PWM_FREQUENCY = 60
 FAST_FREQ = 0
 hats = [Adafruit_MotorHAT(addr = 0x60, freq = DEFAULT_PWM_FREQUENCY), 
-        Adafruit_MotorHAT(addr = 0x61, freq = DEFAULT_PWM_FREQUENCY)] 
+        Adafruit_MotorHAT(addr = 0x61, freq = DEFAULT_PWM_FREQUENCY),
+        Adafruit_MotorHAT(addr = 0x62, freq = DEFAULT_PWM_FREQUENCY), 
+        Adafruit_MotorHAT(addr = 0x63, freq = DEFAULT_PWM_FREQUENCY)] 
 
 # auto-disable motors on program exit
 def turnOffMotors():
