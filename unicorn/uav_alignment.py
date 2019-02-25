@@ -184,11 +184,9 @@ while True:
     # if no data returned then socket has been closed
     if not data: break
 
-    # Call routines to run motor hat 1 
-    threads[0] = runMotors(data, hats[0], motorPairs[0], limitSwitch[0], threads[0], debugPin[0])
+    # Call routines to run motor hat 1, 2, 3, 4 
+    for i in range(4):
+        threads[i] = runMotors(data, hats[i], motorPairs[i], limitSwitch[i], threads[i], debugPin[i])
     
-    # Call routines to run motor hat 2 
-    threads[1] = runMotors(data, hats[1], motorPairs[1], limitSwitch[1], threads[1], debugPin[1])
-
     # reset state vars before next iteration
     runStepper.halt = False
