@@ -283,7 +283,6 @@ class Adafruit_MotorHAT:
         self.steppers = [ Adafruit_StepperMotor(self, 1), Adafruit_StepperMotor(self, 2) ]
         self._pwm = PWM(addr, debug=False, i2c=i2c, i2c_bus=i2c_bus)
         self._pwm.setPWMFreq(self._frequency)
-
     def setPin(self, pin, value):
         if (pin < 0) or (pin > 15):
             raise NameError('PWM pin must be between 0 and 15 inclusive')
