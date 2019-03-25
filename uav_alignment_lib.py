@@ -303,6 +303,7 @@ class Unicorn_Docker:
                     time.sleep(1)
                     stepperOn = False
 
+            # Check if halt flag is set and handle by stopping motors.
             if self.halt == True:
                 print("Halting...")
                 stepper.stopAutoRun()
