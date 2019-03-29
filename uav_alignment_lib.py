@@ -11,8 +11,8 @@ try:
 except ImportError as Ie:
     print 'Import error ', Ie
     
-def alignButtonCallback(_btn, _stepper1 = None, _stepper2 = None, _lock = None, _halt = False):
-    print("alignButtonCallbacki called")
+def alignButtonCallback(_btn, _stepper1 = None, _stepper2 = None, _lock = None, _halt = False, _num = -1):
+    print("alignButtonCallbacki " + str(_num) + " called")
     if _halt == True:
         _stepper1.stopAutoRun()
         _stepper1.hold()
@@ -26,8 +26,8 @@ def alignButtonCallback(_btn, _stepper1 = None, _stepper2 = None, _lock = None, 
     _lock.acquire(False)
     _lock.release()
 
-def stowButtonCallback(_btn, _stepper1 = None, _stepper2 = None, _lock = None, _halt = False):
-    print("stowButtonCallback called")
+def stowButtonCallback(_btn, _stepper1 = None, _stepper2 = None, _lock = None, _halt = False, _num = -1):
+    print("stowButtonCallbacki " + str(_num) + " called")
     if _halt == True:
         _stepper1.stopAutoRun()
         _stepper1.hold()
@@ -45,7 +45,7 @@ class Unicorn_Docker:
     def __init__(self):
         try:
             # create object for each PWM motor control hat 
-            self.DEFAULT_PWM_FREQUENCY = 47 
+            self.DEFAULT_PWM_FREQUENCY = 45
             self.FAST_FREQ = 0
             self.hats=[
                 Adafruit_MotorHAT(addr = 0x60, freq = self.DEFAULT_PWM_FREQUENCY),
@@ -88,7 +88,8 @@ class Unicorn_Docker:
                                             self.motorPairs[0], 
                                             self.limitSwitch[i], 
                                             self.threads[i], 
-                                            self.debugPin[i])
+                                            self.debugPin[i],
+                                            i)
             
             # block for each thread to exit
             if join == True and data != 'rh':
@@ -99,7 +100,7 @@ class Unicorn_Docker:
                         self.threads[i][0].join()
                     if self.threads[i][1].is_alive():
                         self.threads[i][1].join()
-        
+
         elif data == "rh":
             # command motors to turn off (release hold)
             print("Turning off all motors, releasing hold...")
@@ -156,7 +157,7 @@ class Unicorn_Docker:
     # different sets of args for each.  Threads to control all motors will then be
     # spawned.
 
-    def runMotors(self, cmd, mh, motors, limitSwitch, t, debugPin):
+    def runMotors(self, cmd, mh, motors, limitSwitch, t, debugPin, motorPairNum):
         if cmd != 'a1' and cmd != 'r':
             # invalid command!
             print("Invalid command passed to runMotors: " + cmd)
@@ -170,8 +171,8 @@ class Unicorn_Docker:
         stopMotors2 = False
         lock1 = threading.Lock()
         lock2 = threading.Lock()
-        lambda1 = lambda x: alignButtonCallback(limitSwitch[0], steppers[0], steppers[1], lock1, stopMotors1)
-        lambda2 = lambda y: stowButtonCallback(limitSwitch[1], steppers[0], steppers[1], lock2, stopMotors2)
+        lambda1 = lambda x: alignButtonCallback(limitSwitch[0], steppers[0], steppers[1], lock1, stopMotors1, motorPairNum)
+        lambda2 = lambda y: stowButtonCallback(limitSwitch[1], steppers[0], steppers[1], lock2, stopMotors2, motorPairNum)
         limitSwitch[0].when_pressed = lambda1
         limitSwitch[1].when_pressed = lambda2
 
@@ -290,18 +291,18 @@ class Unicorn_Docker:
             elif numSteps > 0 and stepperOn == False:
                 stepper.step(numSteps, direction, style)
             elif stepperOn == True:
-                time.sleep(1)
+                time.sleep(0.5)
                 if direction == Adafruit_MotorHAT.FORWARD and limitSwitch[0].is_pressed:
                     print("Alignment position reached, halting...")
                     break 
                 elif direction == Adafruit_MotorHAT.BACKWARD and limitSwitch[1].is_pressed:
                     print("Stow position reached, halting...")
                     break
-                else:
-                    stepper.stopAutoRun()
-                    stepper.hold()
-                    time.sleep(1)
-                    stepperOn = False
+                #else:
+                    #stepper.stopAutoRun()
+                    #stepper.hold()
+                    #time.sleep(0.5)
+                    #stepperOn = False
 
             # Check if halt flag is set and handle by stopping motors.
             if self.halt == True:
